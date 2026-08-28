@@ -54,9 +54,9 @@ export default function PaymentDetail({ params }: { params: Promise<{ id: string
   return (
     <div className="space-y-12">
       <div>
-        <Link href="/" className="inline-block mb-8 text-[14px] font-medium text-[#888888] hover:text-white transition-colors">
+        <a href="/" className="inline-block mb-8 text-[14px] font-medium text-[#888888] hover:text-white transition-colors">
           ← Back to Dashboard
-        </Link>
+        </a>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-[56px] font-medium tracking-[-1.68px] text-[#ffffff] leading-[1.05]">
