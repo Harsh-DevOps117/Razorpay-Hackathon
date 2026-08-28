@@ -1,16 +1,38 @@
 import Link from "next/link"
 import { TransactionTable } from "@/components/TransactionTable"
+import { prisma } from "@/lib/db/prisma"
+
+export const dynamic = 'force-dynamic'
 
 async function getMetrics() {
-  const res = await fetch("http://localhost:3000/api/metrics", { cache: "no-store" })
-  if (!res.ok) return null
-  return res.json()
+  const totalPayments = await prisma.payment.count()
+  const failedPayments = await prisma.payment.count({ where: { status: { not: "success" } } })
+  const successfulPayments = await prisma.payment.count({ where: { status: "success" } })
+  
+  const revenueData = await prisma.payment.aggregate({
+    _sum: { amount: true },
+    where: { status: "failed", recoverable: true }
+  })
+  
+  const recoveredData = await prisma.auditLog.aggregate({
+    _sum: { revenueRecovered: true }
+  })
+
+  return {
+    totalPayments,
+    failedPayments,
+    successfulPayments,
+    revenueAtRisk: revenueData._sum.amount || 0,
+    revenueRecovered: recoveredData._sum.revenueRecovered || 0
+  }
 }
 
 async function getPayments() {
-  const res = await fetch("http://localhost:3000/api/payments", { cache: "no-store" })
-  if (!res.ok) return []
-  return res.json()
+  return await prisma.payment.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 100,
+    include: { customer: true }
+  })
 }
 
 function formatCurrency(paise: number) {
