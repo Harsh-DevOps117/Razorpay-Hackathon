@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id                      String    @id @default(cuid())
+  name                    String
+  email                   String?
+  phone                   String?
+  previousTransactions    Int       @default(0)
+  successfulTransactions  Int       @default(0)
+  successRate             Float     @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  payments                Payment[]
+}
+
+model Payment {
+  id                String      @id @default(cuid())
+  orderId           String
+  amount            Int         // Stored in paise (smallest currency unit)
+  currency          String      @default("INR")
+  status            String      // e.g. "failed", "success", "pending"
+  failureReason     String?     // e.g. "BANK_TIMEOUT", "INSUFFICIENT_FUNDS", etc.
+  paymentMethod     String?     // e.g. "upi", "card", "netbanking"
+  retryCount        Int         @default(0)
+  riskScore         Float       @default(0)
+  customerId        String
+  customer          Customer    @relation(fields: [customerId], references: [id])
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  auditLogs         AuditLog[]
+
+  // Fields for synthetic dataset evaluation
+  groundTruthAction String?
+  recoverable       Boolean     @default(false)
+}
+
+model AuditLog {
+  id                String    @id @default(cuid())
+  paymentId         String
+  payment           Payment   @relation(fields: [paymentId], references: [id])
+  timestamp         DateTime  @default(now())
+  agentAction       String    // e.g. "RETRY_PAYMENT", "ESCALATE"
+  reason            String?
+  model             String?   // e.g. "gpt-4o-mini"
+  confidence        Float?
+  policyResult      String?   // e.g. "ALLOWED", "BLOCKED"
+  toolCalled        String?
+  toolArguments     String?
+  toolResult        String?
+  toolSuccess       Boolean?
+  reviewerDecision  String?   // e.g. "APPROVED", "REJECTED"
+  paymentStatus     String?   // e.g. "failed", "success"
+  recoveryStatus    String?   // PENDING, RECOVERED, ESCALATED, BLOCKED, UNRESOLVED, NOT_RECOVERABLE
+  revenueRecovered  Int       @default(0)
+}
+
+model EvaluationRun {
+  id                     String   @id @default(cuid())
+  timestamp              DateTime @default(now())
+  transactionsProcessed  Int
+  revenueAtRisk          Int
+  recoverableRevenue     Int
+  revenueRecovered       Int
+  recoveryRate           Float
+  decisionAccuracy       Float
+  precision              Float
+  falsePositiveRate      Float
+  blockedActions         Int
+  escalatedCases         Int
+  unresolvedCases        Int
+  averageProcessingTime  Float
+}
