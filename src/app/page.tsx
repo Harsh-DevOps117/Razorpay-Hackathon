@@ -26,9 +26,9 @@ async function getMetrics() {
       revenueAtRisk: revenueData._sum.amount || 0,
       revenueRecovered: recoveredData._sum.revenueRecovered || 0
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to fetch metrics:", error)
-    return null
+    return { error: error.message || String(error) }
   }
 }
 
@@ -52,6 +52,18 @@ function formatCurrency(paise: number) {
 export default async function Dashboard() {
   const metrics = await getMetrics()
   const payments = await getPayments()
+
+  if (metrics && 'error' in metrics) {
+    return (
+      <div className="p-12 max-w-4xl mx-auto space-y-6">
+        <h2 className="text-2xl font-bold text-red-500">Database Connection Failed</h2>
+        <p className="text-[#a8a8a8]">Vercel is unable to connect to Supabase. This is usually caused by Supabase's IPv4 deprecation or an incorrect connection string.</p>
+        <div className="bg-[#111111] p-6 rounded-lg border border-red-500/30 text-red-400 font-mono text-sm whitespace-pre-wrap">
+          {metrics.error}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-24">
