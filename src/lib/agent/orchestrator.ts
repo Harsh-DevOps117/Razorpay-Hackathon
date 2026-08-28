@@ -30,7 +30,16 @@ export async function runRecoveryAgent(paymentId: string) {
     }
   }
 
-  const decision = await getAgentDecision(paymentContext)
+  let decision: any
+  try {
+    decision = await getAgentDecision(paymentContext)
+  } catch (error: any) {
+    decision = {
+      action: "ESCALATE",
+      explanation: `AI Agent failed: ${error.message}`,
+      confidence: 1.0
+    }
+  }
 
   const policyResult = evaluatePolicy(payment, decision.action, decision.confidence)
 
@@ -58,7 +67,15 @@ export async function runRecoveryAgent(paymentId: string) {
     }
   } else {
     if (decision.action !== "DO_NOTHING" && decision.action !== "ESCALATE") {
-      const reviewer = await getReviewerDecision(paymentContext, decision.action, decision.explanation, policyResult)
+      let reviewer: any
+      try {
+        reviewer = await getReviewerDecision(paymentContext, decision.action, decision.explanation, policyResult)
+      } catch (error: any) {
+        reviewer = {
+          decision: "ESCALATE",
+          explanation: `Reviewer Agent failed: ${error.message}`
+        }
+      }
       reviewerDecisionStr = reviewer.decision
 
       if (reviewer.decision === "APPROVE") {

@@ -77,9 +77,9 @@ export default function PaymentDetail({ params }: { params: Promise<{ id: string
       </div>
 
       <div className="relative">
-        <div className="bg-[#000000] p-8 rounded-[16px] grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           
-          <div className="bg-[#222222] rounded-[12px] p-6 h-[340px] flex flex-col">
+          <div className="bg-[#111111] border border-[#222222] rounded-[12px] p-6 h-[340px] flex flex-col">
             <h3 className="text-[16px] font-semibold text-[#ffffff] mb-6 tracking-[-0.5px]">Payment Core</h3>
             <div className="space-y-5 font-mono text-[13px] text-[#a8a8a8] flex-1 overflow-y-auto">
               <div><span className="text-[#888888]">Status</span><br/><span className={payment.status === 'success' ? 'text-[#33d17a]' : payment.status === 'failed' ? 'text-[#ff4d4d]' : 'text-[#ffffff]'}>{payment.status.toUpperCase()}</span></div>
@@ -89,7 +89,7 @@ export default function PaymentDetail({ params }: { params: Promise<{ id: string
             </div>
           </div>
 
-          <div className="bg-[#222222] rounded-[12px] p-6 h-[340px] flex flex-col">
+          <div className="bg-[#111111] border border-[#222222] rounded-[12px] p-6 h-[340px] flex flex-col">
             <h3 className="text-[16px] font-semibold text-[#ffffff] mb-6 tracking-[-0.5px]">Risk Profile</h3>
             <div className="space-y-5 font-mono text-[13px] text-[#a8a8a8] flex-1 overflow-y-auto">
               <div><span className="text-[#888888]">Customer ID</span><br/><span className="text-[#ffffff]">{payment.customerId}</span></div>
@@ -102,7 +102,7 @@ export default function PaymentDetail({ params }: { params: Promise<{ id: string
             </div>
           </div>
 
-          <div className="bg-[#222222] rounded-[12px] p-6 h-[340px] flex flex-col">
+          <div className="bg-[#111111] border border-[#222222] rounded-[12px] p-6 h-[340px] flex flex-col">
             <h3 className="text-[16px] font-semibold text-[#ffffff] mb-6 tracking-[-0.5px]">Policy Engine Limits</h3>
             <div className="space-y-5 font-mono text-[13px] text-[#a8a8a8] flex-1 overflow-y-auto">
               <div><span className="text-[#888888]">Max Recovery Amount</span><br/><span className="text-[#ffffff]">₹10,000</span></div>
@@ -114,40 +114,46 @@ export default function PaymentDetail({ params }: { params: Promise<{ id: string
             </div>
           </div>
 
-          <div className="bg-[#222222] rounded-[12px] p-6 h-[340px] flex flex-col">
-            <h3 className="text-[16px] font-semibold text-[#ffffff] mb-6 tracking-[-0.5px]">Agent Terminal</h3>
-            <div className="font-mono text-[13px] text-[#a8a8a8] flex-1 overflow-y-auto bg-[#0f0f0f] p-4 rounded-[8px] border border-[#333333]">
+          <div className="bg-[#111111] border border-[#222222] rounded-[12px] h-[340px] flex flex-col overflow-hidden">
+            <div className="bg-[#1a1a1a] border-b border-[#222222] px-4 py-3 flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+              <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+              <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+              <span className="ml-2 text-[12px] font-mono text-[#888888]">agent-terminal ~ zsh</span>
+            </div>
+            <div className="font-mono text-[13px] text-[#a8a8a8] flex-1 overflow-y-auto p-5 space-y-4">
               {audits.length === 0 ? (
                 <div className="text-[#666666] italic">Awaiting execution...</div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {audits.map((audit: any, i: number) => (
-                    <div key={audit.id} className="space-y-1 pb-4 border-b border-[#222222] last:border-0">
+                    <div key={audit.id} className="space-y-2 pb-6 border-b border-[#222222]/50 last:border-0">
                       <div className="text-[#666666]">[{new Date(audit.timestamp).toLocaleTimeString()}]</div>
                       
-                      <div><span className="text-[#7b3aed]">agent.action:</span> <span className="text-[#ffffff]">{audit.agentAction}</span></div>
+                      <div><span className="text-[#00d4ff]">agent.action:</span> <span className="text-[#ffffff] font-medium">{audit.agentAction}</span></div>
                       
-                      <div className="text-[#888888]">
-                        <span className="text-[#7b3aed]">agent.reason:</span> {audit.reason}
+                      <div className="text-[#888888] pl-4 border-l-2 border-[#333333] my-3 py-1 leading-relaxed">
+                        <span className="text-[#00d4ff] font-medium block mb-1">agent.reason:</span> 
+                        {audit.reason}
                       </div>
 
                       {audit.policyResult && (
                         <div>
-                          <span className="text-[#00d4ff]">policy.result:</span> 
-                          <span className={audit.policyResult === 'ALLOWED' ? 'text-[#33d17a]' : 'text-[#ff4d4d]'}> {audit.policyResult}</span>
+                          <span className="text-[#ff4d4d]">policy.result:</span> 
+                          <span className={audit.policyResult === 'ALLOWED' ? 'text-[#33d17a] font-medium' : 'text-[#ff4d4d] font-medium'}> {audit.policyResult}</span>
                         </div>
                       )}
                       
                       {audit.reviewerDecision && audit.reviewerDecision !== "NOT_REQUIRED" && (
                         <div>
-                          <span className="text-[#00d4ff]">reviewer.decision:</span> <span className="text-[#ffffff]">{audit.reviewerDecision}</span>
+                          <span className="text-[#ffbd2e]">reviewer.decision:</span> <span className="text-[#ffffff]">{audit.reviewerDecision}</span>
                         </div>
                       )}
 
                       {audit.toolCalled && (
-                        <div className="mt-2 text-[#ffffff]">
-                          <span className="text-[#33d17a]">➜</span> {audit.toolCalled}()
-                          <div className="mt-1 pl-4 text-[#666666] whitespace-pre-wrap">{audit.toolResult}</div>
+                        <div className="mt-4 pt-3 border-t border-[#222222] text-[#ffffff]">
+                          <span className="text-[#33d17a] mr-2">➜</span> {audit.toolCalled}()
+                          <div className="mt-2 pl-6 text-[#666666] whitespace-pre-wrap">{audit.toolResult}</div>
                         </div>
                       )}
                     </div>
