@@ -36,7 +36,6 @@ async function getPayments() {
   try {
     return await prisma.payment.findMany({
       orderBy: { createdAt: "desc" },
-      take: 100,
       include: { 
         customer: true,
         auditLogs: { orderBy: { timestamp: 'desc' }, take: 1 }

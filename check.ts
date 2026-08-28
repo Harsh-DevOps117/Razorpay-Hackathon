@@ -1,0 +1,1 @@
+import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { const count = await prisma.payment.count({ where: { status: 'success' } }); console.log('Total successful payments in DB:', count); } main();
