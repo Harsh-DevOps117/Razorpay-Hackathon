@@ -5,34 +5,44 @@ import { prisma } from "@/lib/db/prisma"
 export const dynamic = 'force-dynamic'
 
 async function getMetrics() {
-  const totalPayments = await prisma.payment.count()
-  const failedPayments = await prisma.payment.count({ where: { status: { not: "success" } } })
-  const successfulPayments = await prisma.payment.count({ where: { status: "success" } })
-  
-  const revenueData = await prisma.payment.aggregate({
-    _sum: { amount: true },
-    where: { status: "failed", recoverable: true }
-  })
-  
-  const recoveredData = await prisma.auditLog.aggregate({
-    _sum: { revenueRecovered: true }
-  })
+  try {
+    const totalPayments = await prisma.payment.count()
+    const failedPayments = await prisma.payment.count({ where: { status: { not: "success" } } })
+    const successfulPayments = await prisma.payment.count({ where: { status: "success" } })
+    
+    const revenueData = await prisma.payment.aggregate({
+      _sum: { amount: true },
+      where: { status: "failed", recoverable: true }
+    })
+    
+    const recoveredData = await prisma.auditLog.aggregate({
+      _sum: { revenueRecovered: true }
+    })
 
-  return {
-    totalPayments,
-    failedPayments,
-    successfulPayments,
-    revenueAtRisk: revenueData._sum.amount || 0,
-    revenueRecovered: recoveredData._sum.revenueRecovered || 0
+    return {
+      totalPayments,
+      failedPayments,
+      successfulPayments,
+      revenueAtRisk: revenueData._sum.amount || 0,
+      revenueRecovered: recoveredData._sum.revenueRecovered || 0
+    }
+  } catch (error) {
+    console.error("Failed to fetch metrics:", error)
+    return null
   }
 }
 
 async function getPayments() {
-  return await prisma.payment.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 100,
-    include: { customer: true }
-  })
+  try {
+    return await prisma.payment.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      include: { customer: true }
+    })
+  } catch (error) {
+    console.error("Failed to fetch payments:", error)
+    return []
+  }
 }
 
 function formatCurrency(paise: number) {
