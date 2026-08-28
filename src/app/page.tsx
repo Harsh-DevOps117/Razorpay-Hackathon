@@ -37,7 +37,10 @@ async function getPayments() {
     return await prisma.payment.findMany({
       orderBy: { createdAt: "desc" },
       take: 100,
-      include: { customer: true }
+      include: { 
+        customer: true,
+        auditLogs: { orderBy: { timestamp: 'desc' }, take: 1 }
+      }
     })
   } catch (error) {
     console.error("Failed to fetch payments:", error)

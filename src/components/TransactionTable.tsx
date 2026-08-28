@@ -56,6 +56,7 @@ export function TransactionTable({ payments }: { payments: any[] }) {
               <th className="pb-4 px-6 font-semibold">Status</th>
               <th className="pb-4 px-6 font-semibold">Reason</th>
               <th className="pb-4 px-6 font-semibold">Risk</th>
+              <th className="pb-4 px-6 font-semibold">Agent Result</th>
               <th className="pb-4 pl-6 font-semibold text-right">Action</th>
             </tr>
           </thead>
@@ -73,6 +74,16 @@ export function TransactionTable({ payments }: { payments: any[] }) {
                 <td className="py-4 px-6 font-mono text-[13px] text-[#888888]">
                   {payment.riskScore.toFixed(2)}
                 </td>
+                <td className="py-4 px-6 font-mono text-[12px]">
+                  {(() => {
+                    const status = payment.auditLogs?.[0]?.recoveryStatus || "PENDING"
+                    if (status === "RECOVERED") return <span className="text-[#33d17a]">{status}</span>
+                    if (status === "ESCALATED") return <span className="text-[#00d4ff]">{status}</span>
+                    if (status === "UNRESOLVED") return <span className="text-[#ffbd2e]">{status}</span>
+                    if (status === "BLOCKED") return <span className="text-[#ff4d4d]">{status}</span>
+                    return <span className="text-[#888888]">{status}</span>
+                  })()}
+                </td>
                 <td className="py-4 pl-6 text-right">
                   <span className="text-[#a8a8a8] group-hover:text-[#00d4ff] font-medium transition-colors text-[14px]">
                     Inspect →
@@ -82,7 +93,7 @@ export function TransactionTable({ payments }: { payments: any[] }) {
             ))}
             {currentPayments.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-[#888888] text-[13px]">
+                <td colSpan={7} className="py-8 text-center text-[#888888] text-[13px]">
                   No transactions found.
                 </td>
               </tr>
